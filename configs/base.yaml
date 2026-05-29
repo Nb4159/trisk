@@ -1,0 +1,22 @@
+project:
+  name: risk-engine
+
+data:
+  ticker: AAPL
+
+date_range:
+  start: "2018-01-01"
+  end: "2025-01-01"
+
+risk:
+  risk_free_rate: 0.02
+
+garch:
+  p: 1
+  q: 1
+  horizon: 5
+
+paths:
+  raw_data: data/raw
+  processed_data: data/processed
+  outputs: outputs

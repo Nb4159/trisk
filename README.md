@@ -97,7 +97,8 @@ pip install -r requirements.txt
 ## Run GARCH Pipeline
 
 ```bash
-python pipelines/garch_pipeline.py
+python pipelines/garch_pipeline.py \
+    --config configs/base.yaml
 ```
 
 ---
