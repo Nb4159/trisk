@@ -42,10 +42,10 @@ def main():
 
     df=ReturnFeatures.log_returns(df)
     sharpe=SharpeRatio.calculate(returns=df["log_returns"],risk_free_rate=config["risk"]["risk_free_rate"])
-    garch=GARCHModel(df["log_returns"],p=config["garch"]["p"],
-q=config["garch"]["q"],horizon=config["garch"]["horizon"])
-    fitted_model=garch.fit()
-    forecasted_volatility=garch.forecast_volatility(fitted_model)
+    garch=GARCHModel(df["log_returns"])
+    fitted_model=garch.fit(p=config["garch"]["p"],
+q=config["garch"]["q"])
+    forecasted_volatility=garch.forecast_volatility(fitted_model,horizon=config["garch"]["horizon"])
     print(f"Sharpe Ratio: {sharpe}")
     print(f"Forecasted Volatility: {forecasted_volatility}")
     MLFlowTracker.log_metrics(
