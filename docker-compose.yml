@@ -1,0 +1,22 @@
+version: '3.9'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: risk-engine
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+      - ./data:/app/data           # parquet files live here
+      - ./mlruns:/app/mlruns       # mlflow tracking
+    env_file:
+      - .env
+    stdin_open: true
+    tty: true
+    command: >
+      uvicorn api.main:app
+      --host 0.0.0.0
+      --port 8000
+      --reload
