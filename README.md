@@ -60,7 +60,7 @@ Forecasted Volatility:
 ## Clone Repository
 
 ```bash
-git clone <YOUR_REPOSITORY_URL>
+git clone https://github.com/Nb4159/trisk.git
 cd risk-engine
 ```
 
