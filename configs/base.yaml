@@ -2,7 +2,7 @@ project:
   name: risk-engine
 
 data:
-  ticker: AAPL
+  ticker: MA
 
 date_range:
   start: "2018-01-01"

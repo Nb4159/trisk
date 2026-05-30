@@ -22,10 +22,10 @@ class YDataIngestion:
         data = yf.download(self.ticker, start=start_date, end=end_date,auto_adjust=True)
         data.dropna(inplace=True)
         return data
-    def save_paraquet(self,df):
+    def save_parquet(self,df):
         file_path = self.data_dir / f"{self.ticker}.parquet"
         df.to_parquet(file_path)
-    def load_paraquet(self):
+    def load_parquet(self):
         file_path=self.data_dir/f"{self.ticker}.parquet"
         return pd.read_parquet(file_path)
 """if __name__ == "__main__":
