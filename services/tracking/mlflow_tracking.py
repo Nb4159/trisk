@@ -1,4 +1,7 @@
 import mlflow
+
+mlflow.set_tracking_uri("sqlite:///mlruns.db")
+#mlflow.set_tracking_uri("file:./mlruns")
 class MLFlowTracker:
     @staticmethod
     def start_run(run_name):

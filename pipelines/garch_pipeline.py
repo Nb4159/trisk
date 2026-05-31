@@ -1,5 +1,7 @@
 import pandas as pd
 from dotenv import load_dotenv
+import numpy as np
+from services.validation import rolling_garch
 load_dotenv()
 import argparse
 
@@ -38,6 +40,7 @@ from services.visualization.rolling_volatility import (
 from services.visualization.garch_forecast_plot import (
     GARCHForecastPlot
 )
+
 parser = argparse.ArgumentParser()
 
 parser.add_argument(
@@ -59,8 +62,10 @@ def main():
     df=ReturnFeatures.log_returns(df)
     df = ReturnFeatures.rolling_volatility(
     df,
-    window=21#config["risk"]["vol_window"]
+    window=config["risk"]["realized_vol_window"]
     )
+    
+
     stationarity_result=StationarityTest.adf_test(df["log_returns"])
     print("Stationarity Test Result (p-value < 0.05=> Stationary):", stationarity_result)
     sharpe=SharpeRatio.calculate(returns=df["log_returns"],risk_free_rate=config["risk"]["risk_free_rate"])

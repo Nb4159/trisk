@@ -2,21 +2,23 @@ project:
   name: risk-engine
 
 data:
-  ticker: MA
+  ticker: HDFCBANK.NS
 
 date_range:
-  start: "2018-01-01"
-  end: "2025-01-01"
+  start: "2024-01-01"
+  end: "2026-01-01"
 
 risk:
   risk_free_rate: 0.02
-
+  realized_vol_window: 21
 garch:
   p: 1
   q: 1
-  horizon: 5
 
 paths:
   raw_data: data/raw
   processed_data: data/processed
   outputs: outputs
+simulation:
+  horizon_days: 120
+  simulations: 5000

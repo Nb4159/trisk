@@ -1,0 +1,22 @@
+project:
+  name: risk-engine
+data:
+  ticker: TSLA
+date_range:
+  start: '2020-01-01'
+  end: '2025-01-01'
+risk:
+  risk_free_rate: 0.02
+garch:
+  p: 1
+  q: 1
+  horizon: 5
+paths:
+  raw_data: data/raw
+  processed_data: data/processed
+  synthetic_data: data/synthetic
+  figures: outputs/figures
+  forecasts: outputs/forecasts
+  metrics: outputs/metrics
+metadata:
+  generated_at: '2026-05-30T11:07:19.016463'
