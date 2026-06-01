@@ -11,6 +11,10 @@ from services.risk_models.return_estimator import ReturnEstimator
 from services.tracking.mlflow_tracking import MLFlowTracker
 from services.visualization.monte_carlo_plot import MonteCarloPlotter
 from services.risk_models.simulation_metrics import SimulationMetrics
+from services.risk_models.var import ValueAtRisk
+from services.risk_models.cvar import ConditionalVAR
+from services.risk_models.probability_metrics import ProbabilityMetrics
+from services.risk_models.drawdown import Drawdown 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 parser = argparse.ArgumentParser()
@@ -34,7 +38,7 @@ def main():
         end_date=config["date_range"]["end"])
     df=ReturnFeatures.log_returns(df)
     returns=df["log_returns"]
-    mu=ReturnEstimator.annualized_return(returns)
+    mu=0.0#5#ReturnEstimator.annualized_return(returns)
     #print(mu)
     logger.info(f"Annualized return for {ticker}: {mu}")
     garch_model=GARCHModel(returns)
@@ -46,11 +50,96 @@ def main():
     simulator=GBMSimulator(initial_price=df["Close"].iloc[-1],mu=mu,volatility_path=volatility_forecast,simulations=config["simulation"]["simulations"])
     paths=simulator.simulate()
     logger.info("Generated GBM simulations")
+    final_prices=paths.iloc[-1]
+    initialPrice=paths.iloc[0,0]
+    simulated_returns=(final_prices - initialPrice) / initialPrice
+    var95 = ValueAtRisk.monte_carlo(
+    simulated_returns,
+        confidence=0.95
+    )
+
+    var99 = ValueAtRisk.monte_carlo(
+        simulated_returns,
+        confidence=0.99
+    )   
+    cvar95 = (
+        ConditionalVAR
+        .monte_carlo(
+            simulated_returns,
+            confidence=0.95
+        )
+    )
+
+    cvar99 = (
+        ConditionalVAR
+        .monte_carlo(
+            simulated_returns,
+            confidence=0.99
+        )
+    )
+    mean_path = paths.mean(axis=1)
+
+    max_dd =max_dd = paths.apply(Drawdown.max_drawdown).mean()
+    
+
+    recovery_days =int(paths.apply(Drawdown.recovery_period).mean())
+    
+    prob_loss = (
+        ProbabilityMetrics
+        .probability_of_loss(
+            final_prices,
+            initialPrice
+        )
+    )
+
+    prob_10_loss = (
+        ProbabilityMetrics
+        .probability_of_loss_pct(
+            final_prices,
+            initialPrice,
+            0.10
+        )
+    )
+
+    prob_20_gain = (
+        ProbabilityMetrics
+        .probability_of_gain_pct(
+            final_prices,
+            initialPrice,
+            0.20
+        )
+    )
+    risk_report = {
+
+        "var_95": float(var95),
+        "var_99": float(var99),
+
+        "cvar_95": float(cvar95),
+        "cvar_99": float(cvar99),
+
+        "max_drawdown": float(max_dd),
+        "recovery_days": int(recovery_days),
+
+        "probability_of_loss":
+            float(prob_loss),
+
+        "probability_of_10pct_loss":
+            float(prob_10_loss),
+
+        "probability_of_20pct_gain":
+            float(prob_20_gain)
+    }
+    
+    for k, v in risk_report.items():
+        MLFlowTracker.log_metrics(k, v)
+    print(risk_report)
     metrics=SimulationMetrics.summarize(paths)
     logger.info(f"Simulation metrics: {metrics}")
     paths.to_parquet(f"outputs/forecasts/{ticker}_garch_mc.parquet")
     with open(f"outputs/metrics/{ticker}_garch_mc.json", "w") as f:
         json.dump(metrics, f, indent=4)
+    with open(f"outputs/metrics/{ticker}_risk_metrics.json", "w") as f:
+        json.dump(risk_report, f, indent=4)
     MonteCarloPlotter.plot(
         paths=paths,
         ticker=ticker,

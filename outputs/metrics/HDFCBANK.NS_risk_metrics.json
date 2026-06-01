@@ -1,0 +1,11 @@
+{
+    "var_95": 0.01499886425413809,
+    "var_99": 0.021396938599882457,
+    "cvar_95": 0.019021248191313875,
+    "cvar_99": 0.024806768545340797,
+    "max_drawdown": -0.010521693299064366,
+    "recovery_days": 70,
+    "probability_of_loss": 0.5008,
+    "probability_of_10pct_loss": 0.0,
+    "probability_of_20pct_gain": 0.0
+}
