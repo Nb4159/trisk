@@ -1,11 +1,11 @@
 {
-    "var_95": 0.042484689043765136,
-    "var_99": 0.05991659761569566,
-    "cvar_95": 0.05318165906714899,
-    "cvar_99": 0.06886674288559247,
-    "max_drawdown": -0.029598563199611176,
-    "recovery_days": 72,
-    "probability_of_loss": 0.5036,
-    "probability_of_10pct_loss": 0.0002,
+    "var_95": 0.014694550782522965,
+    "var_99": 0.020879772421396183,
+    "cvar_95": 0.01851811572463668,
+    "cvar_99": 0.023843726349322424,
+    "max_drawdown": -0.008301432801052203,
+    "recovery_days": 6,
+    "probability_of_loss": 0.5016,
+    "probability_of_10pct_loss": 0.0,
     "probability_of_20pct_gain": 0.0
 }

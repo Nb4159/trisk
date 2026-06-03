@@ -32,25 +32,50 @@ The long-term objective is to build a realistic financial simulation environment
 
 ---
 
-## Phase 2 — Market Simulation (In Progress) 🚧
+## Phase 2 — Market Simulation & Risk Engine ✅
 
-Implemented:
-
+### 2.1 — Simulation Engine
 * Geometric Brownian Motion (GBM) simulation
-* Monte Carlo price path generation
-* GARCH-conditioned volatility forecasts
-* Future price distribution analysis
-* Interactive simulation visualizations
+* GARCH-conditioned Monte Carlo (dynamic volatility per timestep)
+* Antithetic variates for variance reduction
+* Interactive simulation visualizations (Plotly)
+* Parquet-based forecast storage
 
-Upcoming:
+### 2.2 — Risk Metrics
+* Value at Risk (VaR) — historical, parametric, Monte Carlo
+* Conditional Value at Risk (CVaR / Expected Shortfall)
+* Dollar VaR
+* Max drawdown and recovery period analysis
+* Probability of loss, probability of target gain/loss
 
-* Value at Risk (VaR)
-* Conditional Value at Risk (CVaR)
-* Drawdown analysis
-* Probability of loss metrics
-* Portfolio-level simulations
+### 2.3 — Backtesting
+* Rolling historical VaR backtesting (252-day window)
+* Kupiec proportion of failures test
+* Violation rate reporting
 
 ---
+
+## Validation Results
+
+| Ticker | Asset Type | VaR 95% | CVaR 95% | Max Drawdown | Kupiec P-value | Passed |
+|--------|------------|---------|----------|--------------|----------------|--------|
+| SPY | US Index ETF | 0.35% | 0.44% | -0.20% | 0.9897 | ✅ |
+| DIS | Media/Entertainment | 0.86% | 1.07% | -0.53% | 0.7006 | ✅ |
+| TSLA | High Vol Growth | 1.47% | 1.85% | -0.83% | 0.6907 | ✅ |
+| GME | Meme Stock | 1.98% | 2.49% | -1.11% | 0.6907 | ✅ |
+| LUNA-USD | Collapsed Crypto | 84.0% | 88.5% | -58.46% | 0.7049 | ✅ |
+
+Model correctly identifies risk spectrum from near-riskless (SPY) to catastrophic (LUNA),
+with Kupiec backtesting passing across all asset classes.
+
+---
+
+## Phase 3 — Multi-Asset Portfolio (In Progress) 🚧
+
+* Portfolio VaR and CVaR
+* Correlation matrix estimation
+* Covariance-based risk decomposition
+* Portfolio-level Monte Carlo simulation
 
 # Example Output
 

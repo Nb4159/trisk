@@ -1,7 +1,7 @@
 import pandas as pd
 from dotenv import load_dotenv
 import numpy as np
-from services.validation import rolling_garch
+#from services.validation import rolling_garch
 load_dotenv()
 import argparse
 

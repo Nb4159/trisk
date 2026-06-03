@@ -1,4 +1,6 @@
 from pathlib import Path
+import pandas as pd
+import numpy as np
 import json
 import logging
 import argparse
@@ -15,6 +17,8 @@ from services.risk_models.var import ValueAtRisk
 from services.risk_models.cvar import ConditionalVAR
 from services.risk_models.probability_metrics import ProbabilityMetrics
 from services.risk_models.drawdown import Drawdown 
+from services.risk_models.backtesting import VarBacktester
+
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 parser = argparse.ArgumentParser()
@@ -38,7 +42,7 @@ def main():
         end_date=config["date_range"]["end"])
     df=ReturnFeatures.log_returns(df)
     returns=df["log_returns"]
-    mu=0.0#5#ReturnEstimator.annualized_return(returns)
+    mu=0#ReturnEstimator.annualized_return(returns)
     #print(mu)
     logger.info(f"Annualized return for {ticker}: {mu}")
     garch_model=GARCHModel(returns)
@@ -133,6 +137,23 @@ def main():
     for k, v in risk_report.items():
         MLFlowTracker.log_metrics(k, v)
     print(risk_report)
+    window = 252
+
+    var_series = returns.rolling(window).apply(
+        lambda x: ValueAtRisk.historical(pd.Series(x), confidence=0.95)
+    ).dropna()
+    returns_aligned = returns.loc[var_series.index]
+    backtest_report = (
+    VarBacktester.summary(
+            returns=returns_aligned,
+            var_series=var_series,
+            confidence=0.95
+        )
+    )
+
+    print(backtest_report)
+    for k, v in backtest_report.items():
+        MLFlowTracker.log_metrics(k, v)
     metrics=SimulationMetrics.summarize(paths)
     logger.info(f"Simulation metrics: {metrics}")
     paths.to_parquet(f"outputs/forecasts/{ticker}_garch_mc.parquet")
@@ -140,6 +161,8 @@ def main():
         json.dump(metrics, f, indent=4)
     with open(f"outputs/metrics/{ticker}_risk_metrics.json", "w") as f:
         json.dump(risk_report, f, indent=4)
+    with open(f"outputs/metrics/{ticker}_backtest_metrics.json", "w") as f:
+        json.dump(backtest_report, f, indent=4)
     MonteCarloPlotter.plot(
         paths=paths,
         ticker=ticker,
