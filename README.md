@@ -17,7 +17,7 @@ The long-term objective is to build a realistic financial simulation environment
 
 # Current Features
 
-## Phase 1 — Historical Risk Analytics ✅
+## Phase 1 — Historical Risk Analytics - Completed
 
 * Financial data ingestion using Yahoo Finance
 * Log return calculation
@@ -32,7 +32,7 @@ The long-term objective is to build a realistic financial simulation environment
 
 ---
 
-## Phase 2 — Market Simulation & Risk Engine ✅
+## Phase 2 — Market Simulation & Risk Engine (Completed)
 
 ### 2.1 — Simulation Engine
 * Geometric Brownian Motion (GBM) simulation
@@ -179,8 +179,7 @@ pip install -r requirements.txt
 ## Volatility Forecasting Pipeline
 
 ```bash
-python pipelines/garch_pipeline.py \
-    --config configs/base.yaml
+python -m pipelines.garch_pipeline --config configs/base.yaml
 ```
 
 ---
@@ -188,8 +187,7 @@ python pipelines/garch_pipeline.py \
 ## Monte Carlo Simulation Pipeline
 
 ```bash
-python pipelines/garch_simulate.py \
-    --config configs/base.yaml
+python -m pipelines.garch_simulate --config configs/base.yaml
 ```
 
 ---
@@ -217,27 +215,10 @@ docker compose up
 
 ---
 
-# Project Roadmap
 
-## Phase 2.1 — Risk Metrics
-
-* Value at Risk (VaR)
-* Conditional Value at Risk (CVaR)
-* Drawdown Analysis
-* Tail Risk Estimation
-* Portfolio Risk Metrics
 
 ---
-
-## Phase 2.2 — Portfolio Simulation
-
-* Multi-Asset Portfolios
-* Correlation Modeling
-* Portfolio Monte Carlo Simulation
-* Portfolio Optimization
-
----
-
+## Planned next phases
 ## Phase 3 — Synthetic Financial Data Generation
 
 * Variational Autoencoders (VAE)
