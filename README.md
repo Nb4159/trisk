@@ -36,7 +36,7 @@ The long-term objective is to build a realistic financial simulation environment
 
 
 ## Phase 2 — Market Simulation & Risk Engine (Completed)
->>>>>>> 4eced56b6484a2bfb2f061c882bcea36b727e673
+
 
 ### 2.1 — Simulation Engine
 * Geometric Brownian Motion (GBM) simulation
@@ -113,7 +113,6 @@ Value at Risk (VaR)
 
 ### Data & Storage
 
-* DuckDB
 * SQLite
 * Parquet
 
