@@ -17,9 +17,7 @@ The long-term objective is to build a realistic financial simulation environment
 
 # Current Features
 
-<<<<<<< HEAD
-## Phase 1 — Historical Risk Analytics (Completed)
-=======
+
 ## Phase 1 — Historical Risk Analytics - Completed
 >>>>>>> 4eced56b6484a2bfb2f061c882bcea36b727e673
 
@@ -36,9 +34,7 @@ The long-term objective is to build a realistic financial simulation environment
 
 ---
 
-<<<<<<< HEAD
-## Phase 2 — Market Simulation & Risk Engine (In Progress)
-=======
+
 ## Phase 2 — Market Simulation & Risk Engine (Completed)
 >>>>>>> 4eced56b6484a2bfb2f061c882bcea36b727e673
 
@@ -224,9 +220,6 @@ docker compose up
 ---
 
 
-
----
-## Planned next phases
 ## Phase 3 — Synthetic Financial Data Generation
 
 * Variational Autoencoders (VAE)
