@@ -17,7 +17,7 @@ The long-term objective is to build a realistic financial simulation environment
 
 # Current Features
 
-## Phase 1 — Historical Risk Analytics ✅
+## Phase 1 — Historical Risk Analytics (Completed)
 
 * Financial data ingestion using Yahoo Finance
 * Log return calculation
@@ -32,7 +32,7 @@ The long-term objective is to build a realistic financial simulation environment
 
 ---
 
-## Phase 2 — Market Simulation & Risk Engine ✅
+## Phase 2 — Market Simulation & Risk Engine (In Progress)
 
 ### 2.1 — Simulation Engine
 * Geometric Brownian Motion (GBM) simulation
@@ -59,18 +59,18 @@ The long-term objective is to build a realistic financial simulation environment
 
 | Ticker | Asset Type | VaR 95% | CVaR 95% | Max Drawdown | Kupiec P-value | Passed |
 |--------|------------|---------|----------|--------------|----------------|--------|
-| SPY | US Index ETF | 0.35% | 0.44% | -0.20% | 0.9897 | ✅ |
-| DIS | Media/Entertainment | 0.86% | 1.07% | -0.53% | 0.7006 | ✅ |
-| TSLA | High Vol Growth | 1.47% | 1.85% | -0.83% | 0.6907 | ✅ |
-| GME | Meme Stock | 1.98% | 2.49% | -1.11% | 0.6907 | ✅ |
-| LUNA-USD | Collapsed Crypto | 84.0% | 88.5% | -58.46% | 0.7049 | ✅ |
+| SPY | US Index ETF | 0.35% | 0.44% | -0.20% | 0.9897 | Passed |
+| DIS | Media/Entertainment | 0.86% | 1.07% | -0.53% | 0.7006 | Passed |
+| TSLA | High Vol Growth | 1.47% | 1.85% | -0.83% | 0.6907 | Passed |
+| GME | Meme Stock | 1.98% | 2.49% | -1.11% | 0.6907 | Passed |
+| LUNA-USD | Collapsed Crypto | 84.0% | 88.5% | -58.46% | 0.7049 | Passed |
 
 Model correctly identifies risk spectrum from near-riskless (SPY) to catastrophic (LUNA),
 with Kupiec backtesting passing across all asset classes.
 
 ---
 
-## Phase 3 — Multi-Asset Portfolio (In Progress) 🚧
+## Phase 3 — Multi-Asset Portfolio (In Progress)
 
 * Portfolio VaR and CVaR
 * Correlation matrix estimation
@@ -153,15 +153,15 @@ cd trisk
 ### Windows
 
 ```bash
-python -m venv fna
-fna\Scripts\activate
+python -m venv venv
+venv\Scripts\activate
 ```
 
 ### Linux / macOS
 
 ```bash
-python3 -m venv fna
-source fna/bin/activate
+python3 -m venv venv
+source venv/bin/activate
 ```
 
 ---
@@ -179,8 +179,7 @@ pip install -r requirements.txt
 ## Volatility Forecasting Pipeline
 
 ```bash
-python pipelines/garch_pipeline.py \
-    --config configs/base.yaml
+python -m pipelines.garch_pipeline --config configs/base.yaml
 ```
 
 ---
@@ -188,8 +187,7 @@ python pipelines/garch_pipeline.py \
 ## Monte Carlo Simulation Pipeline
 
 ```bash
-python pipelines/garch_simulate.py \
-    --config configs/base.yaml
+python -m pipelines.garch_simulate --config configs/base.yaml
 ```
 
 ---
