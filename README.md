@@ -19,7 +19,7 @@ The long-term objective is to build a realistic financial simulation environment
 
 
 ## Phase 1 — Historical Risk Analytics - Completed
->>>>>>> 4eced56b6484a2bfb2f061c882bcea36b727e673
+
 
 * Financial data ingestion using Yahoo Finance
 * Log return calculation
