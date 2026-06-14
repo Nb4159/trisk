@@ -17,7 +17,11 @@ The long-term objective is to build a realistic financial simulation environment
 
 # Current Features
 
+<<<<<<< HEAD
 ## Phase 1 — Historical Risk Analytics (Completed)
+=======
+## Phase 1 — Historical Risk Analytics - Completed
+>>>>>>> 4eced56b6484a2bfb2f061c882bcea36b727e673
 
 * Financial data ingestion using Yahoo Finance
 * Log return calculation
@@ -32,7 +36,11 @@ The long-term objective is to build a realistic financial simulation environment
 
 ---
 
+<<<<<<< HEAD
 ## Phase 2 — Market Simulation & Risk Engine (In Progress)
+=======
+## Phase 2 — Market Simulation & Risk Engine (Completed)
+>>>>>>> 4eced56b6484a2bfb2f061c882bcea36b727e673
 
 ### 2.1 — Simulation Engine
 * Geometric Brownian Motion (GBM) simulation
@@ -215,27 +223,10 @@ docker compose up
 
 ---
 
-# Project Roadmap
 
-## Phase 2.1 — Risk Metrics
-
-* Value at Risk (VaR)
-* Conditional Value at Risk (CVaR)
-* Drawdown Analysis
-* Tail Risk Estimation
-* Portfolio Risk Metrics
 
 ---
-
-## Phase 2.2 — Portfolio Simulation
-
-* Multi-Asset Portfolios
-* Correlation Modeling
-* Portfolio Monte Carlo Simulation
-* Portfolio Optimization
-
----
-
+## Planned next phases
 ## Phase 3 — Synthetic Financial Data Generation
 
 * Variational Autoencoders (VAE)
