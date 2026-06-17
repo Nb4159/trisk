@@ -39,7 +39,7 @@ The long-term objective is to build a realistic financial simulation environment
 
 
 ### 2.1 — Simulation Engine
-* Geometric Brownian Motion (GBM) simulation
+* Geometric Brownian Motion (GBM) simulation and Jump Diffusion to model shocks
 * GARCH-conditioned Monte Carlo (dynamic volatility per timestep)
 * Antithetic variates for variance reduction
 * Interactive simulation visualizations (Plotly)
@@ -122,7 +122,8 @@ Value at Risk (VaR)
 * Pandas
 * ARCH (GARCH Models)
 * Monte Carlo Simulation
-
+* Geometric Brownian Motion (GBM)
+* Jump Diffusion
 ### Machine Learning
 
 * PyTorch
