@@ -14,11 +14,15 @@ from services.tracking.mlflow_tracking import MLFlowTracker
 from services.visualization.monte_carlo_plot import MonteCarloPlotter
 from services.risk_models.simulation_metrics import SimulationMetrics
 from services.risk_models.var import ValueAtRisk
+"""
 from services.risk_models.cvar import ConditionalVAR
 from services.risk_models.probability_metrics import ProbabilityMetrics
-from services.risk_models.drawdown import Drawdown 
+from services.risk_models.drawdown import Drawdown """
+from services.risk_models.risk_report import CalculateRiskMetrics
 from services.risk_models.backtesting import VarBacktester
-
+from services.simulation.jump_calibrate import JumpCalibration
+from services.simulation.jump_diffusion import JumpDiffusionSimulator
+from services.simulation.jump_metrics import JumpMetrics
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 parser = argparse.ArgumentParser()
@@ -32,6 +36,7 @@ parser.add_argument(
 args = parser.parse_args()
 config = load_config(args.config)
 def main():
+    #Ingestion
     ticker = config["data"]["ticker"]
 
     logger.info(f"Running simulation for {ticker}")
@@ -45,74 +50,84 @@ def main():
     mu=0#ReturnEstimator.annualized_return(returns)
     #print(mu)
     logger.info(f"Annualized return for {ticker}: {mu}")
+    #Garch Model Fitting
     garch_model=GARCHModel(returns)
     fitted=garch_model.fit(p=config["garch"]["p"],
         q=config["garch"]["q"])
     
     volatility_forecast=garch_model.forecast_volatility(fitted,horizon=config["simulation"]["horizon_days"])
-    logger.info("Generated volatility forecast:")
+    logger.info("Generated volatility forecast")
+    
+    #1. GBM based Monte Carlo Simulation
+    simulator=GBMSimulator(initial_price=df["Close"].iloc[-1],mu=mu,volatility_path=volatility_forecast,simulations=config["simulation"]["simulations"])
+    paths=simulator.simulate()
+    
+    jump_params = (
+        JumpCalibration.calibrate(
+            df["log_returns"]
+        )
+    )
+    MLFlowTracker.log_params(
+        "jump_lambda",
+        jump_params["jump_lambda"]
+    )
+
+    MLFlowTracker.log_params(
+        "jump_mu",
+        jump_params["jump_mu"]
+    )
+
+    MLFlowTracker.log_params(
+        "jump_sigma",
+        jump_params["jump_sigma"]
+    )
+    
+    
+    
     simulator=GBMSimulator(initial_price=df["Close"].iloc[-1],mu=mu,volatility_path=volatility_forecast,simulations=config["simulation"]["simulations"])
     paths=simulator.simulate()
     logger.info("Generated GBM simulations")
     final_prices=paths.iloc[-1]
     initialPrice=paths.iloc[0,0]
-    simulated_returns=(final_prices - initialPrice) / initialPrice
-    var95 = ValueAtRisk.monte_carlo(
-    simulated_returns,
-        confidence=0.95
-    )
+    simulated_returns=(final_prices - initialPrice) / initialPrice #GBM returns
+    # 2. Jump Diffusion based Monte Carlo Simulation
+    jump_simulator = (
+        JumpDiffusionSimulator(
+            initial_price=df["Close"].iloc[-1],
+            mu=mu,
+            volatility_path=volatility_forecast,
 
-    var99 = ValueAtRisk.monte_carlo(
-        simulated_returns,
-        confidence=0.99
-    )   
-    cvar95 = (
-        ConditionalVAR
-        .monte_carlo(
-            simulated_returns,
-            confidence=0.95
+            jump_lambda=
+                jump_params["jump_lambda"],
+
+            jump_mu=
+                jump_params["jump_mu"],
+
+            jump_sigma=
+                jump_params["jump_sigma"],
+
+            simulations=
+                config["simulation"]["simulations"]
         )
     )
 
-    cvar99 = (
-        ConditionalVAR
-        .monte_carlo(
-            simulated_returns,
-            confidence=0.99
-        )
-    )
+    jump_paths =jump_simulator.simulate()
+    logger.info("Generated Jump Diffusion simulations")
+    jump_returns=(jump_paths.iloc[-1] - initialPrice) / initialPrice
+    comparison = JumpMetrics.compare_tail_risk(simulated_returns, jump_returns)
+    for k, v in comparison.items():
+        MLFlowTracker.log_metrics(k,v)
+    print("Tail risk comparison between GBM and Jump Diffusion:", comparison)
+    """var95 = ValueAtRisk.monte_carlo(simulated_returns,confidence=0.95)
+    var99 = ValueAtRisk.monte_carlo(simulated_returns,confidence=0.99)   
+    cvar95 =ConditionalVAR.monte_carlo(simulated_returns,confidence=0.95)  
+    cvar99 = ConditionalVAR.monte_carlo(simulated_returns,confidence=0.99)
     mean_path = paths.mean(axis=1)
-
-    max_dd =max_dd = paths.apply(Drawdown.max_drawdown).mean()
-    
-
+    max_dd  = paths.apply(Drawdown.max_drawdown).mean()
     recovery_days =int(paths.apply(Drawdown.recovery_period).mean())
-    
-    prob_loss = (
-        ProbabilityMetrics
-        .probability_of_loss(
-            final_prices,
-            initialPrice
-        )
-    )
-
-    prob_10_loss = (
-        ProbabilityMetrics
-        .probability_of_loss_pct(
-            final_prices,
-            initialPrice,
-            0.10
-        )
-    )
-
-    prob_20_gain = (
-        ProbabilityMetrics
-        .probability_of_gain_pct(
-            final_prices,
-            initialPrice,
-            0.20
-        )
-    )
+    prob_loss = ProbabilityMetrics.probability_of_loss(final_prices,initialPrice)
+    prob_10_loss = ProbabilityMetrics.probability_of_loss_pct(final_prices,initialPrice,0.10)
+    prob_20_gain = ProbabilityMetrics.probability_of_gain_pct(final_prices,initialPrice,0.20) 
     risk_report = {
 
         "var_95": float(var95),
@@ -133,21 +148,28 @@ def main():
         "probability_of_20pct_gain":
             float(prob_20_gain)
     }
-    
-    for k, v in risk_report.items():
+    """
+    logger.info("Calculating risk metrics for GBM simulations")
+    risk_report_gbm=CalculateRiskMetrics(returns=simulated_returns,initial_price=initialPrice,final_prices=final_prices,paths=paths).generate_report()
+    for k, v in risk_report_gbm.items():
         MLFlowTracker.log_metrics(k, v)
-    print(risk_report)
+    print(risk_report_gbm)
+    logger.info("Calculating risk metrics for Jump Diffusion simulations")
+    risk_report_jump=CalculateRiskMetrics(returns=jump_returns,initial_price=initialPrice,final_prices=jump_paths.iloc[-1],paths=jump_paths).generate_report()
+    for k,v in risk_report_jump.items():
+        MLFlowTracker.log_metrics(f"jump_{k}", v)
+    print(risk_report_jump)
     window = 252
 
-    var_series = returns.rolling(window).apply(
-        lambda x: ValueAtRisk.historical(pd.Series(x), confidence=0.95)
+    var_series = returns.rolling(config["backtesting"]["window"]).apply(
+        lambda x: ValueAtRisk.historical(pd.Series(x), confidence=config["backtesting"]["confidence"])
     ).dropna()
     returns_aligned = returns.loc[var_series.index]
     backtest_report = (
     VarBacktester.summary(
             returns=returns_aligned,
             var_series=var_series,
-            confidence=0.95
+            confidence=config["backtesting"]["confidence"]
         )
     )
 
@@ -159,14 +181,21 @@ def main():
     paths.to_parquet(f"outputs/forecasts/{ticker}_garch_mc.parquet")
     with open(f"outputs/metrics/{ticker}_garch_mc.json", "w") as f:
         json.dump(metrics, f, indent=4)
-    with open(f"outputs/metrics/{ticker}_risk_metrics.json", "w") as f:
-        json.dump(risk_report, f, indent=4)
+    with open(f"outputs/metrics/{ticker}_risk_metrics_gbm.json", "w") as f:
+        json.dump(risk_report_gbm, f, indent=4)
+    with open(f"outputs/metrics/{ticker}_risk_metrics_jump.json", "w") as f:
+        json.dump(risk_report_jump, f, indent=4)
     with open(f"outputs/metrics/{ticker}_backtest_metrics.json", "w") as f:
         json.dump(backtest_report, f, indent=4)
     MonteCarloPlotter.plot(
         paths=paths,
         ticker=ticker,
-        save_path=f"outputs/figures/{ticker}_garch_mc.html"
+        save_path=f"outputs/figures/{ticker}_garch_gbm_mc.html"
+    ) 
+    MonteCarloPlotter.plot(
+        paths=jump_paths,
+        ticker=ticker,
+        save_path=f"outputs/figures/{ticker}_garch_jump_mc.html"
     ) 
     for k, v in metrics.items():
         MLFlowTracker.log_metrics(k, v)

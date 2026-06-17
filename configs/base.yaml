@@ -2,11 +2,11 @@ project:
   name: risk-engine
 
 data:
-  ticker: LUNA-USD
+  ticker: SPY
 
 date_range:
   start: "2018-01-01"
-  end: "2023-01-01"
+  end: "2020-01-01"
 
 risk:
   risk_free_rate: 0.06
@@ -14,7 +14,7 @@ risk:
 garch:
   p: 1
   q: 1
-  horizon: 10
+  
 
 paths:
   raw_data: data/raw
@@ -23,3 +23,6 @@ paths:
 simulation:
   horizon_days: 10
   simulations: 20000
+backtesting:
+  window: 252
+  confidence: 0.95
